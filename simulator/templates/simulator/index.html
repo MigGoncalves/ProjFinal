@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+    <style>
+        .caixa-clique {
+            position: absolute;
+            width: 300px;
+            height: 200px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+        .texto {
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            font-family: Inter, sans-serif;
+            font-weight: 400;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body style="margin:0; background:white; overflow:hidden; width:100vw; height:100vh; position:relative;">
+
+    <!-- Simuladores Disponíveis -->
+    <a href="{% url 'simuladoresDisponiveis' %}">
+        <div class="caixa-clique" style="left: 200px; top: 500px; background: #089FF6;"></div>
+    </a>
+    <div class="texto" style="left: 230px; top: 580px; width: 250px;">
+        Simuladores Disponíveis
+    </div>
+
+    <!-- Ecrã 2 -->
+    <a href="{% url 'ecrã2' %}">
+        <div class="caixa-clique" style="left: 700px; top: 500px; background: #089FF6;"></div>
+    </a>
+    <div class="texto" style="left: 750px; top: 580px; width: 250px;">
+        Ir para Ecrã 2
+    </div>
+
+    <!-- Botão Registo -->
+    <a href="{% url 'registo' %}">
+        <div class="caixa-clique" style="left: 200px; top: 150px; background: #28A745;"></div>
+    </a>
+    <div class="texto" style="left: 270px; top: 230px; width: 250px;">
+        Registo
+    </div>
+
+    <!-- Botão Login -->
+    <a href="{% url 'login' %}">
+        <div class="caixa-clique" style="left: 700px; top: 150px; background: #FFC107;"></div>
+    </a>
+    <div class="texto" style="left: 770px; top: 230px; width: 250px;">
+        Login
+    </div>
+
+</body>
+</html>

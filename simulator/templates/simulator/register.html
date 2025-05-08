@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registo de Utilizador</title>
+</head>
+<body>
+    <h2>Registo de Utilizador</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div>
+            <label for="email">Email:</label>
+            <input type="email" name="email" id="email" required>
+        </div>
+        
+        <div>
+            <label for="idade">Idade:</label>
+            <input type="number" name="idade" id="idade" required>
+        </div>
+        
+        <div>
+            <label for="nacionalidade">Nacionalidade:</label>
+            <input type="text" name="nacionalidade" id="nacionalidade" required>
+        </div>
+        
+        <div>
+            <label for="foto">Foto:</label>
+            <input type="file" name="foto" id="foto">
+        </div>
+        
+        <div>
+            <label for="password">Senha:</label>
+            <input type="password" name="password" id="password" required>
+        </div>
+        
+        <div>
+            <label for="password2">Confirmar Senha:</label>
+            <input type="password" name="password2" id="password2" required>
+        </div>
+
+        <button type="submit">Registar</button>
+    </form>
+</body>
+</html>
