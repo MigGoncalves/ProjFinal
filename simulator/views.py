@@ -2,6 +2,11 @@ from django.shortcuts import render
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate
+from django.contrib import messages
+from .models import Utilizador
+
 
 # Create your views here.
 
@@ -12,11 +17,58 @@ def index(request):
 def available_simulators(request):
     return render(request, 'simulator/simuladoresdisponiveis.html')
 
-def registo(request):
+
+
+# View de registo
+def register(request):
+    if request.method == 'POST':
+        email = request.POST['email']
+        idade = request.POST['idade']
+        nacionalidade = request.POST['nacionalidade']
+        foto = request.FILES.get('foto', None)
+        password = request.POST['password']
+        password2 = request.POST['password2']
+
+        # Verifica se as senhas coincidem
+        if password != password2:
+            messages.error(request, "As senhas não coincidem!")
+            return redirect('register')
+
+        # Cria o utilizador
+        try:
+            user = Utilizador.objects.create_user(email=email, idade=idade, nacionalidade=nacionalidade, foto=foto, password=password)
+            login(request, user)
+            return redirect('index')  # Redireciona para a página inicial ou onde desejado
+        except Exception as e:
+            messages.error(request, f"Erro ao criar utilizador: {e}")
+            return redirect('register')
+
     return render(request, 'simulator/register.html')
 
+# View de login
 def login_view(request):
+    if request.method == 'POST':
+        email = request.POST['email']
+        password = request.POST['password']
+        user = authenticate(request, email=email, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('index')  # Redireciona para a página inicial ou onde desejado
+        else:
+            messages.error(request, "Email ou senha inválidos!")
+            return redirect('login')
+
     return render(request, 'simulator/login.html')
+
+
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+
+def logout_view(request):
+    logout(request)
+    return redirect('index')  # ou 'index', conforme a tua preferência
+
 
 
 
@@ -259,6 +311,9 @@ def simulador_i_view(request):
             ).order_by('ronda')
 
 
+
+        rondas_completas = list(todas_as_rondas) + [simulador]
+
         contexto = {
             'ronda': nova_ronda,
             'r': simulador.r,
@@ -270,24 +325,31 @@ def simulador_i_view(request):
             'V0_max': simulador.V0_max,
             'resultado': simulador.investimento is not None,
             'percentagem': simulador.percentagem,
-            'rondas_anteriores': todas_as_rondas
+            'rondas_anteriores': rondas_completas
         }
 
         return render(request, 'simulator/simulator_i.html', contexto)
 
 
-def login(request):
-    return render(request, 'login.html')
 
-
-def register(request):
-    return render(request, 'register.html')
 
 def results(request):
     return render(request, 'simulator/results.html')
 
 def historico(request):
     return render(request, 'simulator/historico.html')
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.http import HttpResponseForbidden
+
+@login_required
+def instanciar_simulador(request):
+    if not getattr(request.user, 'is_docente', False):
+        return HttpResponseForbidden("Apenas docentes podem aceder a esta página.")
+    
+    return render(request, 'simulator/instanciarsimulador.html')
+
 
 
 # Dados fictícios (dummy data)
@@ -296,28 +358,87 @@ dados = [
         'id': 1,
         'nome': 'Simulador A',
         'data': '2025-04-01',
-        'resultado': 'Resultado 1',
+        'resultado': 'Simulação com ρ = 0.9 e r = 0.05',
         'grupos': [
             {
                 'grupo_id': 1,
                 'nome_grupo': 'Grupo 1',
-                'valor': 'Detalhe Grupo 1',
-                'resultado_1': '42.5',
-                'resultado_2': '15.0',
-                'resultado_final': '57.5'
+                'rondas': [
+                    {
+                        'ronda': 1,
+                        'c0': 50.0,
+                        'c1': 52.5,
+                        's': 10.0,
+                        'U0': 80.0,
+                        'U0_max': 85.0,
+                        'percentagem': 94.1
+                    },
+                    {
+                        'ronda': 2,
+                        'c0': 45.0,
+                        'c1': 55.0,
+                        's': 5.0,
+                        'U0': 78.0,
+                        'U0_max': 85.0,
+                        'percentagem': 88.8
+                    },
+                    {
+                        'ronda': 3,
+                        'c0': 48.0,
+                        'c1': 52.0,
+                        's': 8.0,
+                        'U0': 79.5,
+                        'U0_max': 85.0,
+                        'percentagem': 92.5
+                    },
+                    {
+                        'ronda': 4,
+                        'c0': 50.0,
+                        'c1': 50.0,
+                        's': 7.0,
+                        'U0': 80.5,
+                        'U0_max': 85.0,
+                        'percentagem': 96.2
+                    },
+                    {
+                        'ronda': 5,
+                        'c0': 52.0,
+                        'c1': 48.0,
+                        's': 6.0,
+                        'U0': 81.0,
+                        'U0_max': 85.0,
+                        'percentagem': 87.5
+                    }
+                ]
             },
             {
                 'grupo_id': 2,
                 'nome_grupo': 'Grupo 2',
-                'valor': 'Detalhe Grupo 2',
-                'resultado_1': '30.0',
-                'resultado_2': '25.0',
-                'resultado_final': '55.0'
-            },
-            # Adiciona mais grupos se quiseres
+                'rondas': [
+                    {
+                        'ronda': 1,
+                        'c0': 40.0,
+                        'c1': 60.0,
+                        's': 15.0,
+                        'U0': 75.0,
+                        'U0_max': 85.0,
+                        'percentagem': 88.2
+                    },
+                    {
+                        'ronda': 2,
+                        'c0': 42.0,
+                        'c1': 58.0,
+                        's': 12.0,
+                        'U0': 76.5,
+                        'U0_max': 85.0,
+                        'percentagem': 90.0
+                    }
+                ]
+            }
         ]
     }
 ]
+
 
 
 
@@ -332,27 +453,65 @@ def historico_promenor(request, simulador_id):
 from bokeh.plotting import figure
 from bokeh.embed import components
 from bokeh.resources import CDN
-from bokeh.models import ColumnDataSource,HoverTool
+from bokeh.models import ColumnDataSource, HoverTool
+from django.shortcuts import render
 
+# Exemplo simplificado com a estrutura do grupo
+# (assume-se que o 'grupo' contém uma lista de 'rondas')
 def results_grupo(request, simulador_id, grupo_id):
+    # Supondo que a variável 'dados' está disponível (dummy data)
     simulador = next((sim for sim in dados if sim['id'] == simulador_id), None)
     grupo = next((grp for grp in simulador['grupos'] if grp['grupo_id'] == grupo_id), None) if simulador else None
 
-    etapas = ["Resultado 1", "Resultado 2", "Resultado Final"]
-    valores = [float(grupo['resultado_1']), float(grupo['resultado_2']), float(grupo['resultado_final'])]
+    if not grupo or 'rondas' not in grupo:
+        return render(request, 'simulator/results_grupo.html', {
+            'grupo': None,
+            'bokeh_script': '',
+            'bokeh_div': '',
+            'erro': 'Grupo ou rondas não encontradas.'
+        })
 
-    # Usar ColumnDataSource para usar nomes personalizados no Hover
-    source = ColumnDataSource(data=dict(etapas=etapas, valores=valores))
+    # Extrair dados das rondas
+    rondas = grupo['rondas']
 
-    p = figure(x_range=etapas, height=350, title="Resultados do Grupo", toolbar_location=None, tools="")
+    # Preparar dados para o gráfico
+    source = ColumnDataSource(data=dict(
+        ronda_labels=[f"Ronda {r['ronda']}" for r in rondas],
+        percentagens=[r['percentagem'] for r in rondas],
+        c0=[r['c0'] for r in rondas],
+        c1=[r['c1'] for r in rondas],
+        s=[r['s'] for r in rondas],
+        U0=[r['U0'] for r in rondas],
+        U0_max=[r['U0_max'] for r in rondas]
+    ))
 
-    # Adiciona linha e círculos
-    p.line(x='etapas', y='valores', source=source, line_width=2)
-    p.circle(x='etapas', y='valores', source=source, size=10, color="blue")
+    # Criar gráfico
+    p = figure(
+        x_range=source.data['ronda_labels'],
+        height=350,
+        title="Desempenho por Ronda (%)",
+        toolbar_location=None,
+        tools=""
+    )
 
-    # Hover só com valores
-    hover = HoverTool(tooltips=[("Valor", "@valores")])
+    p.line(x='ronda_labels', y='percentagens', source=source, line_width=2)
+    p.circle(x='ronda_labels', y='percentagens', source=source, size=10, color="blue")
+
+    hover = HoverTool(tooltips=[
+        ("Ronda", "@ronda_labels"),
+        ("c₀", "@c0{0.00}"),
+        ("c₁", "@c1{0.00}"),
+        ("Poupança", "@s{0.00}"),
+        ("U₀", "@U0{0.00}"),
+        ("U₀max", "@U0_max{0.00}"),
+        ("% ótimo", "@percentagens{0.00}")
+    ])
     p.add_tools(hover)
+
+    p.xaxis.axis_label = "Rondas"
+    p.yaxis.axis_label = "Percentagem de desempenho (%)"
+    p.y_range.start = 0
+    p.y_range.end = 110
 
     script, div = components(p)
 

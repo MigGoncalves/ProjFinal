@@ -1,46 +1,85 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registo de Utilizador</title>
+
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'simulator/css/estilo.css' %}">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .registo-box {
+            background-color: #007BFF;
+            padding: 30px;
+            border-radius: 10px;
+            color: white;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        .registo-box input {
+            margin-bottom: 15px;
+        }
+        .login-btn {
+            background-color: #6c757d;
+            border: none;
+        }
+        .login-btn:hover {
+            background-color: #5a6268;
+        }
+    </style>
 </head>
 <body>
-    <h2>Registo de Utilizador</h2>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        
-        <div>
-            <label for="email">Email:</label>
-            <input type="email" name="email" id="email" required>
-        </div>
-        
-        <div>
-            <label for="idade">Idade:</label>
-            <input type="number" name="idade" id="idade" required>
-        </div>
-        
-        <div>
-            <label for="nacionalidade">Nacionalidade:</label>
-            <input type="text" name="nacionalidade" id="nacionalidade" required>
-        </div>
-        
-        <div>
-            <label for="foto">Foto:</label>
-            <input type="file" name="foto" id="foto">
-        </div>
-        
-        <div>
-            <label for="password">Senha:</label>
-            <input type="password" name="password" id="password" required>
-        </div>
-        
-        <div>
-            <label for="password2">Confirmar Senha:</label>
-            <input type="password" name="password2" id="password2" required>
-        </div>
 
-        <button type="submit">Registar</button>
-    </form>
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+        <div class="registo-box text-center col-md-5">
+            <h2>Registo de Utilizador</h2>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="form-group text-start">
+                    <label for="email">Email:</label>
+                    <input type="email" class="form-control" name="email" id="email" required>
+                </div>
+
+                <div class="form-group text-start">
+                    <label for="idade">Idade:</label>
+                    <input type="number" class="form-control" name="idade" id="idade" required>
+                </div>
+
+                <div class="form-group text-start">
+                    <label for="nacionalidade">Nacionalidade:</label>
+                    <input type="text" class="form-control" name="nacionalidade" id="nacionalidade" required>
+                </div>
+
+                <div class="form-group text-start">
+                    <label for="foto">Foto:</label>
+                    <input type="file" class="form-control" name="foto" id="foto">
+                </div>
+
+                <div class="form-group text-start">
+                    <label for="password">Senha:</label>
+                    <input type="password" class="form-control" name="password" id="password" required>
+                </div>
+
+                <div class="form-group text-start">
+                    <label for="password2">Confirmar Senha:</label>
+                    <input type="password" class="form-control" name="password2" id="password2" required>
+                </div>
+
+                <button type="submit" class="btn btn-principal  w-100 mt-3">Registar</button>
+            </form>
+
+            <a href="{% url 'login' %}" class="btn btn-secundario  w-100 mt-3">Já tens conta? Inicia sessão</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS (opcional) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -3,107 +3,100 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulador de Consumo Intertemporal</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+    <link rel="stylesheet" href="{% static 'simulator/css/estilo.css' %}">
     <style>
-        input[type="text"] {
+        input[type="text"], input[type="number"] {
             border-radius: 10px;
             background-color: white;
         }
-        .simulador-section {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 50px;
+        .btn-voltar {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
         }
-        .table-container {
-            max-width: 500px;
+        .btn-ajuda {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
+    <!-- Botão Voltar fixo no canto superior esquerdo -->
+    <a href="{% url 'index' %}" class="btn btn-secondary btn-voltar">Voltar</a>
+
     <div class="container mt-4">
         <div class="text-center">
-            <img src="{% static 'imagens/logo.png' %}" alt="Logo" class="img-fluid mb-4" style="max-height: 100px;">
-            <h1 class="mb-4">Simulador de Consumo Intertemporal</h1>
-            <h5 class="text-muted">Ronda {{ ronda }}</h5>
+            <h1 class="mb-4">Simulador de Investimento</h1>
         </div>
 
-        <div class="simulador-section">
-            <!-- Parte do formulário e resultados -->
-            <div class="table-container">
-                <form method="post">
-                    {% csrf_token %}
-                    <h4 class="text-center mb-3">Parâmetros da Simulação</h4>
-                    <table class="table table-bordered table-striped table-hover">
-                        <tbody>
-                            <tr><th>Rendimento Inicial (A)</th><td>{{ A|floatformat:3 }}</td></tr>
-                            <tr><th>Taxa de Juro (r)</th><td>{{ r|floatformat:3 }}</td></tr>
-                            <tr><th>Taxa de Impaciência (α)</th><td>{{ alpha|floatformat:3 }}</td></tr>
-                            <tr><th>Taxa de Desconto (δ)</th><td>{{ delta|floatformat:3 }}</td></tr>
+        <!-- Tabela com histórico e input apenas para ronda atual -->
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-12">
+                    <h4 class="text-center mb-3">Parâmetros e Investimento</h4>
+                    <table class="table table-bordered table-striped table-hover tabela-historico">
+                        <thead class="thead-custom">
                             <tr>
-                                <th>Investimento Atual</th>
-                                <td><input type="text" name="investimento" class="form-control" required></td>
+                                <th>Ronda</th>
+                                <th>A</th>
+                                <th>r</th>
+                                <th>α</th>
+                                <th>δ</th>
+                                <th>Investimento</th>
                             </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in rondas_anteriores %}
+                            <tr {% if item.ronda|stringformat:"s" == ronda|stringformat:"s" %} class="table-primary" {% endif %}>
+                                <td style="width: 120px;">{{ item.ronda }}</td>
+                                <td style="width: 120px;">{{ item.A|floatformat:3 }}</td>
+                                <td style="width: 120px;">{{ item.r|floatformat:3 }}</td>
+                                <td style="width: 120px;">{{ item.alpha|floatformat:3 }}</td>
+                                <td style="width: 120px;">{{ item.delta|floatformat:3 }}</td>
+                                <td style="width: 120px;">
+                                    {% if item.ronda|stringformat:"s" == ronda|stringformat:"s" %}
+                                        <input type="number" step="0.01" name="investimento" class="form-control" style="width: 100px;" required>
+                                    {% else %}
+                                        {{ item.investimento|floatformat:2 }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
+
                     <div class="text-center mt-3">
                         <button type="submit" class="btn btn-primary">Submeter</button>
                     </div>
-                </form>
-
-                {% if resultado %}
-                <div class="text-center mt-4">
-                    <h3 class="text-success">Resultados:</h3>
-                    <table class="table table-bordered">
-                        <tbody>
-                            <tr><th>Investimento</th><td>{{ investimento|floatformat:3 }}</td></tr>
-                            <tr><th>Consumo Ótimo (K)</th><td>{{ K|floatformat:3 }}</td></tr>
-                            <tr><th>Valor Inicial (V0)</th><td>{{ V0|floatformat:3 }}</td></tr>
-                            <tr><th>Valor Máximo (V0_max)</th><td>{{ V0_max|floatformat:3 }}</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                {% endif %}
-
-                <div class="text-center mt-3">
-                    <a href="{% url 'index' %}" class="btn btn-secondary">Voltar</a>
                 </div>
             </div>
-
-            <!-- Parte da tabela de histórico -->
-            {% if rondas_anteriores %}
-            <div class="table-container">
-                <h5 class="text-center mb-3">Histórico de Rondas</h5>
-                <table class="table table-bordered table-striped">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Ronda</th>
-                            <th>Investimento</th>
-                            <th>K</th>
-                            <th>V0</th>
-                            <th>V0_max</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for h in rondas_anteriores %}
-                        <tr>
-                            <td>{{ h.ronda }}</td>
-                            <td>{{ h.investimento|floatformat:3 }}</td>
-                            <td>{{ h.K|floatformat:3 }}</td>
-                            <td>{{ h.V0|floatformat:3 }}</td>
-                            <td>{{ h.V0_max|floatformat:3 }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% endif %}
-        </div>
+        </form>
     </div>
 
+    <!-- Botão de ajuda fixo no canto inferior direito -->
+    <button class="btn btn-info btn-ajuda" data-bs-toggle="tooltip" data-bs-placement="top" title="
+        A: produtividade total dos fatores
+        r: taxa de juro
+        α: elasticidade do capital
+        δ: taxa de depreciação
+        Investimento: quanto do capital será investido nesta ronda
+    ">
+        Help
+    </button>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Ativar tooltips do Bootstrap
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+            new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    </script>
 </body>
 </html>

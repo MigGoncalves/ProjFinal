@@ -10,7 +10,9 @@ urlpatterns = [
     path('historico/', views.historico, name='historico'),
     path('historico/<int:simulador_id>/', views.historico_promenor, name='historico_promenor'),
     path('historico/<int:simulador_id>/<int:grupo_id>/', views.results_grupo, name='historico_pormenor_grupo'),
-    path('registo/', views.registo, name='registo'),
+    path('registo/', views.register, name='registo'),
     path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    path('instanciar/', views.instanciar_simulador, name='instanciar_simulador')
     
 ]

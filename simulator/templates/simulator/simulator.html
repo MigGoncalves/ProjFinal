@@ -5,98 +5,98 @@
     <meta charset="UTF-8">
     <title>Simulador de Consumo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+    <link rel="stylesheet" href="{% static 'simulator/css/estilo.css' %}">
     <style>
         input[type="text"] {
             border-radius: 10px;
             background-color: white;
         }
+        .btn-voltar {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        .btn-ajuda {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
+    <!-- Botão Voltar fixo no canto superior esquerdo -->
+    <a href="{% url 'index' %}" class="btn btn-secondary btn-voltar">Voltar</a>
+
     <div class="container mt-4">
         <div class="text-center">
-            <img src="{% static 'imagens/logo.png' %}" alt="Logo" class="img-fluid mb-4" style="max-height: 100px;">
+            
             <h1 class="mb-4">Simulador de Consumo Intertemporal</h1>
-            <h5 class="text-muted">Ronda {{ ronda }}</h5>
         </div>
 
-        <div class="row mt-4">
-            <!-- Formulário e parâmetros da simulação -->
-            <div class="col-md-6">
-                <form method="post">
-                    {% csrf_token %}
-                    <h4 class="text-center mb-3">Parâmetros da Simulação</h4>
-                    <table class="table table-bordered table-striped table-hover">
+        <!-- Tabela com input de c0 -->
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-12">
+                    <h4 class="text-center mb-3">Parâmetros</h4>
+                    <table class="table table-bordered table-striped table-hover tabela-historico">
+                        <thead class="thead-custom">
+                            <tr>
+                                <th>Ronda</th>
+                                <th>y₀</th>
+                                <th>y₁</th>
+                                <th>r</th>
+                                <th>ρ</th>
+                                <th>c₀</th>
+                            </tr>
+                        </thead>
                         <tbody>
-                            <tr>
-                                <th>Renda Inicial (y0)</th>
-                                <td>{{ y0|floatformat:3 }}</td>
+                            {% for ronda_item in rondas_anteriores %}
+                            <tr {% if ronda_item.ronda == ronda %} class="table-primary" {% endif %}>
+                                <td style="width: 120px;">{{ ronda_item.ronda }}</td>
+                                <td style="width: 120px;">{{ ronda_item.y0|floatformat:2 }}</td>
+                                <td style="width: 120px;">{{ ronda_item.y1|floatformat:2 }}</td>
+                                <td style="width: 120px;">{{ ronda_item.r|floatformat:2 }}</td>
+                                <td style="width: 120px;">{{ ronda_item.rho|floatformat:2 }}</td>
+                                <td style="width: 120px;">
+                                    {% if ronda_item.ronda == ronda %}
+                                        <input type="text" name="c0" class="form-control" style="width: 100px;" required>
+                                    {% else %}
+                                        {{ ronda_item.c0|floatformat:2 }}
+                                    {% endif %}
+                                </td>
                             </tr>
-                            <tr>
-                                <th>Renda Futura (y1)</th>
-                                <td>{{ y1|floatformat:3 }}</td>
-                            </tr>
-                            <tr>
-                                <th>Taxa de Juro (r)</th>
-                                <td>{{ r|floatformat:3 }}</td>
-                            </tr>
-                            <tr>
-                                <th>Taxa de Impaciência (ρ)</th>
-                                <td>{{ rho|floatformat:3 }}</td>
-                            </tr>
-                            <tr>
-                                <th>Consumo Atual (c0)</th>
-                                <td><input type="text" name="c0" class="form-control" required></td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
 
                     <div class="text-center mt-3">
                         <button type="submit" class="btn btn-primary">Submeter</button>
                     </div>
-                </form>
+                </div>
             </div>
-
-            <!-- Histórico de Rondas -->
-            {% if rondas_anteriores %}
-            <div class="col-md-6">
-                <h4 class="text-center mb-3">Histórico de Rondas</h4>
-                <table class="table table-bordered table-striped table-hover">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Ronda</th>
-                            <th>c₀</th>
-                            <th>c₁</th>
-                            <th>Poupança (s)</th>
-                            <th>U₀</th>
-                            <th>U₀max</th>
-                            <th>%</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for ronda in rondas_anteriores %}
-                        <tr>
-                            <td>{{ ronda.ronda }}</td>
-                            <td>{{ ronda.c0|floatformat:2 }}</td>
-                            <td>{{ ronda.c1|floatformat:2 }}</td>
-                            <td>{{ ronda.s|floatformat:2 }}</td>
-                            <td>{{ ronda.U0|floatformat:2 }}</td>
-                            <td>{{ ronda.U0_max|floatformat:2 }}</td>
-                            <td>{{ ronda.percentagem|floatformat:2 }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% endif %}
-        </div>
-
-        <div class="text-center mt-4">
-            <a href="{% url 'index' %}" class="btn btn-secondary">Voltar</a>
-        </div>
+        </form>
     </div>
 
+    <!-- Botão de ajuda fixo no canto inferior direito -->
+    <button class="btn btn-info btn-ajuda" data-bs-toggle="tooltip" data-bs-placement="top" title="
+        y₀: rendimento no período 0
+        y₁: rendimento no período 1
+        r: taxa de juro
+        ρ: preferência temporal
+        c₀: consumo no período 0
+    ">
+        Help
+    </button>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+            new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    </script>
 </body>
 </html>
