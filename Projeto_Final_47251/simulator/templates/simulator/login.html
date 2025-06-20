@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <!-- Bootstrap CSS -->
+    
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'simulator/css/estilo.css' %}">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .login-box {
+            background-color: #007BFF;
+            padding: 30px;
+            border-radius: 10px;
+            color: white;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        .login-box input {
+            margin-bottom: 15px;
+        }
+        .register-btn {
+            background-color: #6c757d;
+            border: none;
+        }
+        .register-btn:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+        <div class="login-box text-center col-md-4">
+            <h2>Login</h2>
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="form-group text-start">
+                    <label for="email">Email:</label>
+                    <input type="email" class="form-control" name="email" id="email" required>
+                </div>
+
+                <div class="form-group text-start">
+                    <label for="password">Senha:</label>
+                    <input type="password" class="form-control" name="password" id="password" required>
+                </div>
+
+                <button type="submit" class="btn btn-principal w-100 mt-3">Entrar</button>
+            </form>
+
+            <a href="{% url 'registo' %}" class="btn btn-secundario w-100 mt-3">Não tens conta? Regista-te</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS (opcional) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

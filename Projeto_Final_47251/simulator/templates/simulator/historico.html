@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Histórico de Simuladores - {{ tipo_nome }}</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+
+    <style>
+        .btn-custom {
+            background-color: #0056b3; /* azul mais intenso */
+            color: white;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <!-- Logo e título -->
+        <div class="text-center mb-4">
+            <img src="{% static 'imagens/logo.png' %}" alt="Logo" class="img-fluid" style="max-height: 100px;">
+            <h1>Histórico de Simuladores</h1>
+            <h4>Tipo: {{ tipo_nome }}</h4>
+        </div>
+
+        <!-- Tabela -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped text-center">
+                <thead class="table-primary">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Data</th>
+                        <th>Resultado</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-body">
+                    {% if simuladores %}
+                        {% for s in simuladores %}
+                            <tr class="simulador-linha" style="display:none;">
+                                <td>{{ s.id }}</td>
+                                <!-- Link para detalhe do simulador, certifica-te que a url 'historico_promenor' está configurada -->
+                                <td><a href="{% url 'historico_promenor' tipo s.id %}">{{ s.nome }}</a></td>
+                                <td>{{ s.data|date:"Y-m-d" }}</td>
+                                <td>{{ s.resultado }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4">Nenhum simulador encontrado para o tipo {{ tipo_nome }}.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Botão "Ver mais resultados" -->
+        {% if simuladores %}
+        <div class="text-center">
+            <button class="btn btn-custom" onclick="mostrarMais()">Ver mais resultados</button>
+        </div>
+        {% endif %}
+
+        <!-- Botão de voltar -->
+        <div class="text-center mt-3">
+            <a href="{% url 'ecrã2' %}" class="btn btn-secondary">Voltar</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let mostrados = 0;
+        const porPagina = 5;
+
+        function mostrarMais() {
+            const linhas = document.querySelectorAll('.simulador-linha');
+            for (let i = mostrados; i < mostrados + porPagina && i < linhas.length; i++) {
+                linhas[i].style.display = '';
+            }
+            mostrados += porPagina;
+
+            if (mostrados >= linhas.length) {
+                document.querySelector('.btn-custom').style.display = 'none';
+            }
+        }
+
+        // Mostrar os primeiros 5 simuladores quando a página carrega
+        window.onload = mostrarMais;
+    </script>
+</body>
+</html>
