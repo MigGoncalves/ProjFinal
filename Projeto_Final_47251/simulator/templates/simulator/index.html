@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+    <style>
+        body {
+            margin: 0;
+            background: white;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            font-family: Inter, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+         a {
+            text-decoration: none; /* Remove sublinhado de todos os links */
+        }
+
+        .caixa-clique {
+            width: 400px;
+            height: 250px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 22px;
+            font-weight: 600;
+            text-align: center;
+            margin: 20px;
+        }
+
+        .hoverable:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .mensagem {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .logout, .registo {
+            position: absolute;
+            top: 20px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            color: white;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .logout {
+            right: 30px;
+            background-color: #dc3545;
+        }
+
+        .logout:hover {
+            background-color: #c82333;
+            transform: scale(1.05);
+        }
+
+        .registo {
+            right: 120px;
+            background-color: #007bff;
+        }
+
+        .registo:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .caixas-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    {% if user.is_authenticated %}
+        <div class="mensagem">Bem-vindo, {{ user.email }}!</div>
+        <a href="{% url 'logout' %}" class="logout">Logout</a>
+    {% else %}
+        <a href="{% url 'registo' %}" class="registo">Registo</a>
+    {% endif %}
+
+    <div class="caixas-container">
+        <!-- Simuladores Disponíveis -->
+        <a href="{% url 'instanciar_simulador' %}">
+            <div class="caixa-clique hoverable" style="background: #089FF6;">
+                Instanciar Simulador
+            </div>
+        </a>
+
+        <!-- Histórico -->
+        <a href="{% url 'escolha_historico' %}">
+            <div class="caixa-clique hoverable" style="background: #089FF6;">
+                Histórico de Simuladores
+            </div>
+        </a>
+
+       
+
+        {% if user.is_authenticated and not user.is_docente %}
+            <!-- Acessar Simulador -->
+            <a href="{% url 'acessar_simulador' %}">
+                <div class="caixa-clique hoverable" style="background: #ffc107; color: black;">
+                    Acessar Simulador
+                </div>
+            </a>
+        {% endif %}
+    </div>
+
+</body>
+</html>

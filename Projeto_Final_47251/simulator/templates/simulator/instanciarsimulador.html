@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Simuladores Disponíveis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .dropdown-toggle {
+            width: 300px;
+            font-size: 1.2rem;
+            padding: 12px 20px;
+        }
+
+        .dropdown-menu {
+            width: 300px;
+            font-size: 1.1rem;
+        }
+
+        .btn-voltar {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+        }
+
+        .btn-ajuda {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body class="bg-light d-flex flex-column align-items-center" style="min-height: 100vh; padding-top: 80px;">
+
+    <!-- Botão Voltar -->
+    <a href="{% url 'index' %}" class="btn btn-secondary btn-voltar">Voltar</a>
+
+    <h2 class="mb-5 text-center">Qual simulador pretende inicializar</h2>
+
+    <!-- Criar novo simulador -->
+    <form method="post" class="w-50 text-center">
+        {% csrf_token %}
+        <div class="mb-3">
+            <input type="text" class="form-control" name="nome" placeholder="Nome do novo simulador" required>
+        </div>
+        <div class="mb-3">
+            <select class="form-select" name="tipo" id="tipo-simulador" required>
+                <option value="">Escolha o tipo de simulador</option>
+                <option value="I">Simulador intertemporal de consumo</option>
+                <option value="II">Simulador intertemporal de investimento</option>
+                <option value="III">Simulador Personalizado</option>
+            </select>
+        </div>
+
+        <!-- Parâmetros para Simulador Personalizado -->
+        <div id="parametros-personalizados" class="mb-3" style="display: none;">
+            <h5 class="mb-3">Defina os intervalos dos parâmetros:</h5>
+            {% for i in "1234" %}
+            <div class="row mb-2">
+                <label class="col-sm-3 col-form-label text-end">Parâmetro {{ i }}:</label>
+                <div class="col-sm-4">
+                    <input type="number" step="any" name="param{{ i }}_min" class="form-control" placeholder="Mínimo">
+                </div>
+                <div class="col-sm-4">
+                    <input type="number" step="any" name="param{{ i }}_max" class="form-control" placeholder="Máximo">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="mb-3">
+            <input type="password" class="form-control" name="senha" placeholder="Senha para o simulador" required>
+        </div>
+        <button type="submit" class="btn btn-success">Criar Novo Simulador</button>
+    </form>
+
+    {% if mensagem %}
+        <div class="alert alert-success mt-3">{{ mensagem }}</div>
+    {% endif %}
+
+    <!-- Botão de ajuda -->
+    <button class="btn btn-info btn-ajuda" data-bs-toggle="tooltip" data-bs-placement="top" title="Selecione um simulador existente ou crie um novo para iniciar.">
+        Help
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+
+        const tipoSelect = document.getElementById('tipo-simulador');
+        const parametrosDiv = document.getElementById('parametros-personalizados');
+
+        function toggleParametros() {
+            parametrosDiv.style.display = (tipoSelect.value === 'III') ? 'block' : 'none';
+        }
+
+        tipoSelect.addEventListener('change', toggleParametros);
+        window.addEventListener('load', toggleParametros);
+    </script>
+</body>
+</html>
